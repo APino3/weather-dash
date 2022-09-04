@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <h1>Weather Dashboard</h1>
+      </div>
+      <div class="row">
+        <div class="input-field col s6">
+          <input
+            value="Dallas"
+            id="locationName"
+            type="text"
+            class="validate"
+          />
+          <label class="active" for="first_name2">Location</label>
+        </div>
+        <a id="searchBtn" class="waves-effect waves-light btn"
+          ><i class="material-icons left">cloud</i>search</a
+        >
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+      document
+        .getElementById("searchBtn")
+        .addEventListener("click", (event) => {
+          console.log("Working Btn");
+          let locationName = document.getElementById("locationName").value;
+          console.log("locationName");
+        });
+    </script>
+  </body>
+</html>
