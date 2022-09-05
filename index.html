@@ -22,13 +22,8 @@
       </div>
       <div class="row">
         <div class="input-field col s6">
-          <input
-            value="Dallas"
-            id="locationName"
-            type="text"
-            class="validate"
-          />
-          <label class="active" for="first_name2">Location</label>
+          <input value="Dallas" id="cityName" type="text" class="validate" />
+          <label class="active">City Name</label>
         </div>
         <a id="searchBtn" class="waves-effect waves-light btn"
           ><i class="material-icons left">cloud</i>search</a
@@ -36,14 +31,26 @@
       </div>
     </div>
 
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.27.2/axios.min.js"
+      integrity="sha512-odNmoc1XJy5x1TMVMdC7EMs3IVdItLPlCeL5vSUPN2llYKMJ2eByTTAIiiuqLg+GdNr9hF6z81p27DArRFKT7A=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script>
       document
         .getElementById("searchBtn")
         .addEventListener("click", (event) => {
-          console.log("Working Btn");
-          let locationName = document.getElementById("locationName").value;
-          console.log("locationName");
+          let cityName = document.getElementById("cityName").value;
+          console.log(cityName);
+          axios
+            .get(
+              "api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=2a7b2ea72a230cb66e6c57b204fcafbe"
+            )
+            .then((res) => {
+              console.log(res.data);
+            });
         });
     </script>
   </body>
