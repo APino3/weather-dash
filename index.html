@@ -22,14 +22,25 @@
       </div>
       <div class="row">
         <div class="input-field col s6">
-          <input value="Dallas" id="cityName" type="text" class="validate" />
+          <input
+            placeholder="Dallas"
+            id="cityName"
+            type="text"
+            class="validate"
+            list="previousSearches"
+          />
           <label class="active">City Name</label>
+          <datalist id="previousSearches"></datalist>
         </div>
         <a id="searchBtn" class="waves-effect waves-light btn"
           ><i class="material-icons left">cloud</i>search</a
         >
       </div>
-    </div>
+
+      <div class="row" id="fiveDayWeather">
+        
+      </div>
+      
 
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.27.2/axios.min.js"
@@ -39,19 +50,74 @@
     ></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script>
+      loadSearches();
+      const CITY_INFO = (cityName) => `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&units=imperial&appid=2a7b2ea72a230cb66e6c57b204fcafbe`;
+      //const FIVE_DAY = (f) => `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=2a7b2ea72a230cb66e6c57b204fcafbe`;
+
       document
         .getElementById("searchBtn")
         .addEventListener("click", (event) => {
           let cityName = document.getElementById("cityName").value;
           console.log(cityName);
           axios
-            .get(
-              "api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=2a7b2ea72a230cb66e6c57b204fcafbe"
-            )
+            .get(CITY_INFO(cityName))
             .then((res) => {
-              console.log(res.data);
+              saveCity(cityName.toUpperCase());
+              //let lat = res.data.city.coord.lat;
+              //let lon = res.data.city.coord.lon;
+              //debugger;
+              //
+              
+                let string = '';
+              console.log(res.data.list.map((val, idx) => {
+                
+                if ((idx + 1) % 8  != 0  )return ""; 
+                string += 
+                `
+                          <div class="col s2 m2">
+                      <div class="card blue-grey darken-1">
+                        <div class="card-content white-text">
+                          <span class="card-title">Card Title</span>
+                          <p>TEMP: ${
+                            val.main.temp
+                          } °F</p>
+                        </div>
+                        <div class="card-action">
+                          <a href="#">This is a link</a>
+                          <a href="#">This is a link</a>
+                        </div>
+                      </div>
+                    </div>`}));
+                    document.querySelector("#fiveDayWeather").innerHTML = string;
+              
             });
         });
+
+      function loadSearches() {
+        let cities = getSavedCities();
+        if (cities.length == 0) return;
+        document.getElementById("previousSearches").innerHTML = cities
+          .map((city) => `<option value='${city}'>${city}</option>`)
+          .join("");
+      }
+
+      function saveCity(cityToAdd) {
+        if (localStorage.getItem("cities")) {
+          let cities = JSON.parse(localStorage.getItem("cities"));
+          cities.push(cityToAdd);
+          cities = [...new Set(cities)];
+          localStorage.setItem("cities", JSON.stringify(cities));
+        } else {
+          localStorage.setItem("cities", JSON.stringify([cityToAdd]));
+        }
+      }
+      function getSavedCities() {
+        if (localStorage.getItem("cities")) {
+          return JSON.parse(localStorage.getItem("cities"));
+        } else {
+          return [];
+        }
+      }
     </script>
   </body>
 </html>
