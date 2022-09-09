@@ -14,6 +14,23 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
     />
+
+    <style>
+      #cityName {
+        text-transform:Capitalize;
+      }
+
+      .collection-item:hover {
+        background-color: lightgreen;
+        cursor:pointer;
+      }
+      .row .col.m3 {
+          width: 20%;
+          margin-left: auto;
+          left: auto;
+          right: auto;
+      }
+    </style>
   </head>
   <body>
     <div class="container">
@@ -27,16 +44,38 @@
             id="cityName"
             type="text"
             class="validate"
-            list="previousSearches"
+
           />
           <label class="active">City Name</label>
-          <datalist id="previousSearches"></datalist>
+          <ul class="collection" id="previousSearches"></ul>
         </div>
         <a id="searchBtn" class="waves-effect waves-light btn"
           ><i class="material-icons left">cloud</i>search</a
         >
       </div>
 
+      <div class="row">
+        <div class="col s12 m7">
+          <h2 class="header" id="cityHeader"></h2>
+          <div class="card horizontal">
+            <div class="card-image">
+              <img id="cityImage" >
+            </div>
+            <div class="card-stacked">
+              <div class="card-content">
+                <p>Temperature: <span id="cityTemp"></span>°F</p>
+                <p>Wind: <span id="cityWind"></span>MPH</p>
+                <p>Humidity: <span id="cityHumidity"></span>%</p>
+                <p>UV Index: <span id="cityUV"></span></p>
+              </div>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <h3>5-Day Forecast</h3>
       <div class="row" id="fiveDayWeather">
         
       </div>
@@ -52,17 +91,28 @@
     <script>
       loadSearches();
       const CITY_INFO = (cityName) => `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&units=imperial&appid=2a7b2ea72a230cb66e6c57b204fcafbe`;
-      //const FIVE_DAY = (f) => `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=2a7b2ea72a230cb66e6c57b204fcafbe`;
-
+      const ICON = (img) => `http://openweathermap.org/img/wn/${img}.png`
+      const CURRENT_WEATHER =(cityName) => `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&units=imperial&appid=2a7b2ea72a230cb66e6c57b204fcafbe`;
       document
         .getElementById("searchBtn")
-        .addEventListener("click", (event) => {
-          let cityName = document.getElementById("cityName").value;
+        .addEventListener("click", () => searchCity(document.getElementById("cityName").value));
+
+      function capitalize(word){
+        word = word.toLowerCase();
+        return [word[0].toUpperCase(), word.slice(1, word.length)].join("");
+      }
+      function searchCity(cityName){
+        if (!cityName ) return;
+        axios.get(CURRENT_WEATHER(cityName))
+          .then(showCurrentWeather); 
+
+        cityName = capitalize(cityName); 
+        document.getElementById("cityName").value = cityName; 
           console.log(cityName);
           axios
             .get(CITY_INFO(cityName))
             .then((res) => {
-              saveCity(cityName.toUpperCase());
+              
               //let lat = res.data.city.coord.lat;
               //let lon = res.data.city.coord.lon;
               //debugger;
@@ -74,30 +124,44 @@
                 if ((idx + 1) % 8  != 0  )return ""; 
                 string += 
                 `
-                          <div class="col s2 m2">
+                          <div class="col s3 m3">
                       <div class="card blue-grey darken-1">
                         <div class="card-content white-text">
-                          <span class="card-title">Card Title</span>
+                          <h5>${val.dt_txt.split(" ")[0]}</h5>
+                          <span class="card-title"><img src='${ICON(val.weather[0].icon)}'></span>
                           <p>TEMP: ${
                             val.main.temp
                           } °F</p>
+                          <p>Wind: MPH ${val.wind.speed} </p>
+                          <p>Humidity: ${val.main.humidity}%</p>
+                          
                         </div>
-                        <div class="card-action">
-                          <a href="#">This is a link</a>
-                          <a href="#">This is a link</a>
-                        </div>
+                        
                       </div>
                     </div>`}));
                     document.querySelector("#fiveDayWeather").innerHTML = string;
               
             });
-        });
+        
+      }
+      
+      function showCurrentWeather(response) {
+        console.log('Current weather', response);
+          document.querySelector("#cityHeader").innerHTML = response.data.name;
+          document.querySelector("#cityImage").src = ICON(response.data.weather[0].icon);
+          document.querySelector("#cityTemp").innerHTML = response.data.main.temp;
+          document.querySelector("#cityWind").innerHTML = response.data.wind.speed;
+          document.querySelector("#cityHumidity").innerHTML = response.data.main.humidity;
+          saveCity(response.data.name);
+          loadSearches();
+          //document.querySelector("#cityUV") = response;/
+      }
 
       function loadSearches() {
         let cities = getSavedCities();
         if (cities.length == 0) return;
         document.getElementById("previousSearches").innerHTML = cities
-          .map((city) => `<option value='${city}'>${city}</option>`)
+          .map((city) => `<li class='collection-item' value='${city}' onclick='searchCity(this.innerHTML)'>${city}</li>`)
           .join("");
       }
 
